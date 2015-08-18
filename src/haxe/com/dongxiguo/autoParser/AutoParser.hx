@@ -14,7 +14,7 @@ using Lambda;
 
 class AutoParser {
 
-  private static function processName(sb:StringBuf, s:String):Void {
+  static function processName(sb:StringBuf, s:String):Void {
     var i = 0;
     while (true) {
       var prev = i;
@@ -31,7 +31,7 @@ class AutoParser {
     }
   }
 
-  private static function generatedMethodName(pack:Array<String>, name:String):String {
+  static function generatedMethodName(pack:Array<String>, name:String):String {
     var sb = new StringBuf();
     sb.add("parse_");
     for (p in pack) {
@@ -42,18 +42,13 @@ class AutoParser {
     return sb.toString();
   }
 
-  @:noUsing
-  macro public static function generate(includeModules:Array<String>):Array<Field> return
-  {
-    var localClass = Context.getLocalClass().get();
-    var modulePath = MacroStringTools.toFieldExpr(localClass.module.split("."));
-    var className = localClass.name;
+#if macro
+
+  static function fields(includeModules:Array<String>, parserModule:String, parserName:String):Array<Field> return {
+    var modulePath = MacroStringTools.toFieldExpr(parserModule.split("."));
+    var className = parserName;
     var thisClassExpr = macro $modulePath.$className;
-//    var generator = new ParserGenerator(thisClassExpr);
-
     var dataTypesByGeneratedMethodName = new StringMap<BaseType>();
-
-
     var methodArgs = [
       {
         name : "__source",
@@ -430,7 +425,7 @@ class AutoParser {
       }
     }
 
-    var fields = Context.getBuildFields();
+    var fields = [];
     for (f in elementParseFields) { fields.push(f); }
     for (f in repeatParseFields) { fields.push(f); }
     for (f in enumParseFields) { fields.push(f); }
@@ -438,5 +433,33 @@ class AutoParser {
 //    t.fields = fields;
 //    trace(new Printer().printTypeDefinition(t));
     fields;
+  }
+#end
+  @:noUsing
+  public macro static function defineParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
+    var parserPackage = parserModule.split(".");
+    var moduleName = parserPackage.pop();
+    Context.defineModule(
+      parserModule,
+      [
+        {
+          pack: parserPackage,
+          name: parserName == null ? moduleName : parserName,
+          pos: PositionTools.here(),
+          params: null,
+          meta: null,
+          kind: TDClass(null, [], false),
+          isExtern: false,
+          fields: fields(includeModules, parserModule, parserName == null ? moduleName : parserName)
+        }
+      ]);
+  }
+
+
+
+  @:noUsing
+  public macro static function generate(includeModules:Array<String>):Array<Field> return {
+    var localClass = Context.getLocalClass().get();
+    Context.getBuildFields().concat(fields(includeModules, localClass.module, localClass.name));
   }
 }

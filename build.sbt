@@ -8,3 +8,4 @@ for (c <- Seq(Compile, Test)) yield {
   haxeOptions in c += (baseDirectory.value / "build.hxml").getAbsolutePath
 }
 
+haxeOptions in Test ++= Seq("--macro", """com.dongxiguo.autoParser.AutoParser.defineParser([ "com.dongxiguo.autoParser.UriTemplateLevel1" ], "com.dongxiguo.autoParser.MacroParser")""")
