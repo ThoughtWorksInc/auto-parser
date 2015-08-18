@@ -10,6 +10,8 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
+using Lambda;
+
 class AutoParser {
 
   private static function processName(sb:StringBuf, s:String):Void {
@@ -123,7 +125,7 @@ class AutoParser {
                 [
                   {
                     name : "__source",
-                    type : macro : autoParser.ISource<$underlyingComplexType, Position>
+                    type : macro : com.dongxiguo.autoParser.ISource<$underlyingComplexType, Position>
                   }
                 ],
                 ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
@@ -137,10 +139,81 @@ class AutoParser {
 
           }
           methodName;
+        case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":rewrite")):
+          var methodName = generatedMethodName(abstractType.pack, abstractType.name);
+          if (dataTypesByGeneratedMethodName.get(methodName) == null) {
+            dataTypesByGeneratedMethodName.set(methodName, abstractType);
+            var abstractPath = abstractType.module.split(".");
+            abstractPath.push(abstractType.name);
+            var abstractFieldExpr = MacroStringTools.toFieldExpr(abstractPath);
+            var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
+            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
+
+            var impl = abstractType.impl;
+            if (impl == null) {
+              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+            }
+            var statics = impl.get().statics;
+            if (statics == null) {
+              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+            }
+            var constructor = statics.get().find(function (constructor) return constructor.name == "_new");
+            if (constructor == null) {
+              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+            }
+            switch Context.follow(constructor.type) {
+              case TFun([ { t:fromType } ], _):
+                var generatedFromMethodName = tryAddParseMethod(fromType);
+                if (generatedFromMethodName == null) {
+                  return Context.error('${TypeTools.toString(fromType)} is not supported.', constructor.pos);
+                }
+
+                var abstractPack = abstractType.module.split(".");
+                var abstractName = abstractPack.pop();
+                var abstractTypePath = {
+                  pack: abstractPack,
+                  name: abstractName,
+                  sub: abstractType.name,
+                  params: null
+                };
+                elementParseFields.push({
+                  name : methodName,
+                  access: [APublic, AStatic],
+                  kind : FFun({
+                    params: [ { name: "Position" } ],
+                    args :
+                    [
+                      {
+                        name : "__source",
+                        type : null
+                      }
+                    ],
+                    ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
+                    expr: macro {
+                    inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                    __typeInfererForSource(__source);
+                    var __from = $thisClassExpr.$generatedFromMethodName(__source);
+                    if (__from == null) {
+                      return null;
+                    } else {
+                      return new $abstractTypePath(__from);
+                    }
+                    }
+                  }),
+                  pos: PositionTools.here()
+                });
+
+                trace("---------");
+                trace(constructor);
+              default:
+                Context.error("@:rewrite abstract's constructor must accept extractly one parameter", constructor.pos);
+            }
+          }
+          methodName;
+
         case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":repeat")):
           var methodName = generatedMethodName(abstractType.pack, abstractType.name);
           if (dataTypesByGeneratedMethodName.get(methodName) == null) {
-            var repeatMeta = abstractType.meta.extract(":repeat")[0];
             dataTypesByGeneratedMethodName.set(methodName, abstractType);
             var abstractPath = abstractType.module.split(".");
             abstractPath.push(abstractType.name);
@@ -149,6 +222,7 @@ class AutoParser {
             var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
             var minRepeat:ExprOf<Int>;
             var maxRepeat:Null<ExprOf<Int>>;
+            var repeatMeta = abstractType.meta.extract(":repeat")[0];
             switch repeatMeta.params {
               case null:
                 Context.error("@:repeat requires one or two parameters", repeatMeta.pos);
@@ -183,7 +257,7 @@ class AutoParser {
                     ],
                     ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
                     expr: macro {
-                    inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
+                    inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
                     __typeInfererForSource(__source);
                     var __repeatedResult:Array<$elementComplexType>= [];
                     while ($whileCondition) {
@@ -229,7 +303,7 @@ class AutoParser {
                 [
                   {
                     name : "__source",
-                    type : macro : autoParser.ISource<$underlyingComplexType, Position>
+                    type : macro : com.dongxiguo.autoParser.ISource<$underlyingComplexType, Position>
                   }
                 ],
                 ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
@@ -304,7 +378,7 @@ class AutoParser {
                       ],
                       ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
                       expr: macro return {
-                      inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
+                      inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
                       __typeInfererForSource(__source);
                       {$a{argsExprs}}
                       }
@@ -339,7 +413,7 @@ class AutoParser {
                 ],
                 ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
                 expr: macro return {
-                inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
+                inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
                 __typeInfererForSource(__source);
                 {$a{enumBodyExprs}}
                 }
