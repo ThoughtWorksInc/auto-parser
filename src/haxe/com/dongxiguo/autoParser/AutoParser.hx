@@ -202,9 +202,6 @@ class AutoParser {
                   }),
                   pos: PositionTools.here()
                 });
-
-                trace("---------");
-                trace(constructor);
               default:
                 Context.error("@:rewrite abstract's constructor must accept extractly one parameter", constructor.pos);
             }
