@@ -1,5 +1,6 @@
 package com.dongxiguo.autoParser;
 
+@:atom
 abstract Literal(Int) {
   public static inline function accept(c:Int):Bool return switch (c) {
     case "/".code : true;

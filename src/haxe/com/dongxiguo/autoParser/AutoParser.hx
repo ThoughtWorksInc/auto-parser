@@ -270,7 +270,7 @@ class AutoParser {
             }
           }
           methodName;
-        case TAbstract(_.get() => abstractType, _) if (hasStatic(abstractType, "accept")):
+        case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":atom")):
           var methodName = generatedMethodName(abstractType.pack, abstractType.name);
           if (dataTypesByGeneratedMethodName.get(methodName) == null) {
             dataTypesByGeneratedMethodName.set(methodName, abstractType);
