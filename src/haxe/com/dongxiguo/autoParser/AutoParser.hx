@@ -59,7 +59,7 @@ class AutoParser {
 // ADT的序列化必须放在最后，因为它们需要类型推断。
     var elementParseFields:Array<Field> = [];
     var repeatParseFields:Array<Field> = [];
-    var enumParseFields:Array<Field> = [];
+    var complexParseFields:Array<Field> = [];
 
     function hasStatic(abstractType:AbstractType, methodName:String):Bool return {
       switch abstractType {
@@ -78,6 +78,77 @@ class AutoParser {
 
     function tryAddParseMethod(type:Type):Null<String> return {
       switch Context.follow(type) {
+        case TInst(_.get() => classType, _) if (classType.constructor != null && classType.constructor.get().isPublic):
+          var methodName = generatedMethodName(classType.pack, classType.name);
+          if (dataTypesByGeneratedMethodName.get(methodName) == null) {
+            dataTypesByGeneratedMethodName.set(methodName, classType);
+
+            var parseExprs = [];
+            for (field in classType.fields.get()) {
+              switch (field.kind) {
+                case FVar(AccCall|AccNormal|AccInline, AccCall|AccNormal|AccInline):
+                  var generatedArgMethodName = tryAddParseMethod(field.type);
+                  var fieldName = field.name;
+                  parseExprs.push(if (field.meta.has(":optional") || field.type.match(TType(_.get() => {name: "Null", module: "StdTypes"}, [_]))) {
+                    macro
+                    {
+                      var __savedPosition = __source.position;
+                      var __fieldValue = $thisClassExpr.$generatedArgMethodName(__source);
+                      if (__fieldValue == null) {
+                        __source.position = __savedPosition;
+                      } else {
+                        __sequence.$fieldName = __fieldValue;
+                      }
+                    }
+                  } else {
+                    macro
+                    {
+                      var __fieldValue = $thisClassExpr.$generatedArgMethodName(__source);
+                      if (__fieldValue == null) {
+                        return null;
+                      } else {
+                        __sequence.$fieldName = __fieldValue;
+                      }
+                    }
+                  });
+                default:
+                  continue;
+              }
+            }
+            var classPack = classType.module.split(".");
+            var className = classPack.pop();
+            var classTypePath = {
+              pack: classPack,
+              name: className,
+              sub: classType.name,
+              params: null
+            };
+
+            complexParseFields.push({
+              name: methodName,
+              access: [APublic, AStatic],
+              kind : FFun({
+                params: [ { name: "Position" } ],
+                args :
+                [
+                  {
+                    name : "__source",
+                    type : null
+                  }
+                ],
+                ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
+                expr: macro return {
+                inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                __typeInfererForSource(__source);
+                var __sequence = new $classTypePath();
+                {$a{parseExprs}}
+                __sequence;
+                }
+              }),
+              pos: PositionTools.here()
+            });
+          }
+          methodName;
         case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":enum")):
           var methodName = generatedMethodName(abstractType.pack, abstractType.name);
           if (dataTypesByGeneratedMethodName.get(methodName) == null) {
@@ -340,7 +411,7 @@ class AutoParser {
                     argsIdentExprs.push(macro $i{enumValueName});
                   }
                   argsExprs.push(macro $enumFieldExpr.$constructorName($a{argsIdentExprs}));
-                  enumParseFields.push({
+                  complexParseFields.push({
                     name: enumValueMethodName,
                     access: [APublic, AStatic],
                     kind : FFun({
@@ -375,7 +446,7 @@ class AutoParser {
             }
             enumBodyExprs.push(macro null);
 
-            enumParseFields.push({
+            complexParseFields.push({
               name : methodName,
               access: [APublic, AStatic],
               kind : FFun({
@@ -412,7 +483,7 @@ class AutoParser {
     var fields = [];
     for (f in elementParseFields) { fields.push(f); }
     for (f in repeatParseFields) { fields.push(f); }
-    for (f in enumParseFields) { fields.push(f); }
+    for (f in complexParseFields) { fields.push(f); }
 //    var t = macro class BuildingParser {}
 //    t.fields = fields;
 //    trace(new Printer().printTypeDefinition(t));
