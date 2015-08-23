@@ -142,25 +142,23 @@ class AutoParser {
             abstractPath.push(abstractType.name);
             var abstractFieldExpr = MacroStringTools.toFieldExpr(abstractPath);
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
-            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
-
             var impl = abstractType.impl;
             if (impl == null) {
-              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+              Context.error("@:rewrite abstract's constructor must contain a rewriteFrom method", abstractType.pos);
             }
             var statics = impl.get().statics;
             if (statics == null) {
-              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+              Context.error("@:rewrite abstract's constructor must contain a rewriteFrom method", abstractType.pos);
             }
-            var constructor = statics.get().find(function (constructor) return constructor.name == "_new");
-            if (constructor == null) {
-              Context.error("@:rewrite abstract's constructor must contain a constructor", abstractType.pos);
+            var rewriteFromMethod = statics.get().find(function (f) return f.name == "rewriteFrom");
+            if (rewriteFromMethod == null) {
+              Context.error("@:rewrite abstract's constructor must contain a rewriteFrom method", abstractType.pos);
             }
-            switch Context.follow(constructor.type) {
+            switch Context.follow(rewriteFromMethod.type) {
               case TFun([ { t:fromType } ], _):
                 var generatedFromMethodName = tryAddParseMethod(fromType);
                 if (generatedFromMethodName == null) {
-                  return Context.error('${TypeTools.toString(fromType)} is not supported.', constructor.pos);
+                  return Context.error('${TypeTools.toString(fromType)} is not supported.', rewriteFromMethod.pos);
                 }
 
                 var abstractPack = abstractType.module.split(".");
@@ -191,27 +189,22 @@ class AutoParser {
                     if (__from == null) {
                       return null;
                     } else {
-                      return new $abstractTypePath(__from);
+                      return $abstractFieldExpr.rewriteFrom(__from);
                     }
                     }
                   }),
                   pos: PositionTools.here()
                 });
               default:
-                Context.error("@:rewrite abstract's constructor must accept extractly one parameter", constructor.pos);
+                Context.error("@:rewrite abstract's rewriteFrom method must accept extractly one parameter", rewriteFromMethod.pos);
             }
           }
           methodName;
-
         case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":repeat")):
           var methodName = generatedMethodName(abstractType.pack, abstractType.name);
           if (dataTypesByGeneratedMethodName.get(methodName) == null) {
             dataTypesByGeneratedMethodName.set(methodName, abstractType);
-            var abstractPath = abstractType.module.split(".");
-            abstractPath.push(abstractType.name);
-            var abstractFieldExpr = MacroStringTools.toFieldExpr(abstractPath);
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
-            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
             var minRepeat:ExprOf<Int>;
             var maxRepeat:Null<ExprOf<Int>>;
             var repeatMeta = abstractType.meta.extract(":repeat")[0];

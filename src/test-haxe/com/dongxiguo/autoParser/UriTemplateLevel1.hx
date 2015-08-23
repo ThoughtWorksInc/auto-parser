@@ -25,8 +25,8 @@ abstract ExpressionEnd(Int) {
 
 @:rewrite
 abstract Variable(Literals) {
-  public function new(value:Expression) {
-    this = switch value {
+  public static function rewriteFrom(value:Expression):Variable return {
+    cast switch value {
       case EXPRESSION(_, variable, _): variable;
     }
   }
