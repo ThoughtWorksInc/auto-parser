@@ -160,15 +160,6 @@ class AutoParser {
                 if (generatedFromMethodName == null) {
                   return Context.error('${TypeTools.toString(fromType)} is not supported.', rewriteFromMethod.pos);
                 }
-
-                var abstractPack = abstractType.module.split(".");
-                var abstractName = abstractPack.pop();
-                var abstractTypePath = {
-                  pack: abstractPack,
-                  name: abstractName,
-                  sub: abstractType.name,
-                  params: null
-                };
                 elementParseFields.push({
                   name : methodName,
                   access: [APublic, AStatic],
