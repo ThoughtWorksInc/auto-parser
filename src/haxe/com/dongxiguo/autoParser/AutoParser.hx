@@ -168,16 +168,21 @@ class AutoParser {
                 }
               }
             }
+            var cases = [];
+            if (staticFieldExprs.length > 0) {
+              cases.push(
+                {
+                  values: staticFieldExprs,
+                  expr: macro { __source.next(); cast __current; }
+                }
+              );
+            }
+
             var switchExpr = {
               pos: PositionTools.here(),
               expr: ESwitch(
                 macro __current,
-                [
-                  {
-                    values: staticFieldExprs,
-                    expr: macro { __source.next(); cast __current; }
-                  }
-                ],
+                cases,
                 macro null)
             }
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
