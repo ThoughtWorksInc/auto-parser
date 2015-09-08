@@ -509,6 +509,14 @@ class AutoParser {
   }
 
 
+  @:noUsing
+  public static function defineMacroParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
+    hamu.ExprEvaluator.evaluateInMacroContext(macro {
+      com.dongxiguo.autoParser.AutoParser.defineParser($v{includeModules}, $v{parserModule}, $v{parserName});
+      null;
+    });
+  }
+
 #end
 
   @:noUsing
