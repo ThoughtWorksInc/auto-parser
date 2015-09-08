@@ -44,17 +44,11 @@ class AutoParser {
 
 #if macro
 
-  static function fields(includeModules:Array<String>, parserModule:String, parserName:String):Array<Field> return {
+  static function fields(includeModules:Array<String>, parserModule:String, className:String):Array<Field> return {
     var modulePath = MacroStringTools.toFieldExpr(parserModule.split("."));
-    var className = parserName;
     var thisClassExpr = macro $modulePath.$className;
     var dataTypesByGeneratedMethodName = new StringMap<BaseType>();
-    var methodArgs = [
-      {
-        name : "__source",
-        type : null
-      }
-    ];
+
 
 // ADT的序列化必须放在最后，因为它们需要类型推断。
     var elementParseFields:Array<Field> = [];
@@ -494,9 +488,8 @@ class AutoParser {
 //    trace(new Printer().printTypeDefinition(t));
     fields;
   }
-#end
   @:noUsing
-  public macro static function defineParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
+  public static function defineParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
     var parserPackage = parserModule.split(".");
     var moduleName = parserPackage.pop();
     Context.defineModule(
@@ -516,6 +509,7 @@ class AutoParser {
   }
 
 
+#end
 
   @:noUsing
   public macro static function generate(includeModules:Array<String>):Array<Field> return {
