@@ -91,7 +91,8 @@ class AutoParser {
                       if (__fieldValue == null) {
                         __source.position = __savedPosition;
                       } else {
-                        if ((__sequence.$fieldName = __fieldValue) == null) {
+                        inline function nullable<A>(a:Null<A>):Null<A> return a;
+                        if (nullable(__sequence.$fieldName = __fieldValue) == null) {
                           __source.position = __savedPosition;
                         }
                       }
@@ -103,7 +104,8 @@ class AutoParser {
                       if (__fieldValue == null) {
                         return null;
                       } else {
-                        if ((__sequence.$fieldName = __fieldValue) == null) {
+                        inline function nullable<A>(a:Null<A>):Null<A> return a;
+                        if (nullable(__sequence.$fieldName = __fieldValue) == null) {
                           return null;
                         }
                       }
