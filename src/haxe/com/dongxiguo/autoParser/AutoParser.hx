@@ -91,7 +91,9 @@ class AutoParser {
                       if (__fieldValue == null) {
                         __source.position = __savedPosition;
                       } else {
-                        __sequence.$fieldName = __fieldValue;
+                        if ((__sequence.$fieldName = __fieldValue) == null) {
+                          __source.position = __savedPosition;
+                        }
                       }
                     }
                   } else {
@@ -101,7 +103,9 @@ class AutoParser {
                       if (__fieldValue == null) {
                         return null;
                       } else {
-                        __sequence.$fieldName = __fieldValue;
+                        if ((__sequence.$fieldName = __fieldValue) == null) {
+                          return null;
+                        }
                       }
                     }
                   });
