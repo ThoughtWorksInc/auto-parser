@@ -496,20 +496,17 @@ class AutoParser {
   public static function defineParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
     var parserPackage = parserModule.split(".");
     var moduleName = parserPackage.pop();
-    Context.defineModule(
-      parserModule,
-      [
-        {
-          pack: parserPackage,
-          name: parserName == null ? moduleName : parserName,
-          pos: PositionTools.here(),
-          params: null,
-          meta: null,
-          kind: TDClass(null, [], false),
-          isExtern: false,
-          fields: fields(includeModules, parserModule, parserName == null ? moduleName : parserName)
-        }
-      ]);
+    var parserDefinition = {
+      pack: parserPackage,
+      name: parserName == null ? moduleName : parserName,
+      pos: PositionTools.here(),
+      params: null,
+      meta: null,
+      kind: TDClass(null, [], false),
+      isExtern: false,
+      fields: fields(includeModules, parserModule, parserName == null ? moduleName : parserName)
+    };
+    Context.defineModule(parserModule, [ parserDefinition ]);
   }
 
 
