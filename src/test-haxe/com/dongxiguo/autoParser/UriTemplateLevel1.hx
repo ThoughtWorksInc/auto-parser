@@ -21,11 +21,16 @@ abstract ExpressionBegin(Int) {
 
 @:enum
 abstract ExpressionEnd(Int) {
-  var EXPRESSSION_BEGIN = "}".code;
+  var EXPRESSSION_END = "}".code;
 }
 
 @:rewrite
 abstract Variable(Literals) {
+
+  public static function rewriteTo(value:Variable):Expression return {
+    EXPRESSION(ExpressionBegin.EXPRESSSION_BEGIN, cast value, ExpressionEnd.EXPRESSSION_END);
+  }
+
   public static function rewriteFrom(value:Expression):Variable return {
     cast switch value {
       case EXPRESSION(_, variable, _): variable;

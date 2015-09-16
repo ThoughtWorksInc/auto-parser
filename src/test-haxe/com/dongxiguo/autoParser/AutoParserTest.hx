@@ -63,9 +63,16 @@ class AutoParserTest extends TestCase {
 }
 
 
-@:build(com.dongxiguo.autoParser.AutoParser.generate([
+@:build(hamu.ExprEvaluator.evaluate(com.dongxiguo.autoParser.AutoParser.BUILDER.build([
   "com.dongxiguo.autoParser.AutoParserTestAst"
-]))
+])))
 class AutoParserTestAstParser {
+
+}
+
+@:build(hamu.ExprEvaluator.evaluate(com.dongxiguo.autoParser.AutoFormatter.BUILDER.build([
+  "com.dongxiguo.autoParser.AutoParserTestAst"
+])))
+class AutoParserTestAstFormatter {
 
 }

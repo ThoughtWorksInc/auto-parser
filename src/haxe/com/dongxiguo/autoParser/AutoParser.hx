@@ -1,5 +1,6 @@
 package com.dongxiguo.autoParser;
 
+import haxe.macro.MacroType;
 import haxe.macro.Type.AbstractType;
 import haxe.macro.Printer;
 import haxe.macro.TypeTools;
@@ -9,27 +10,13 @@ import haxe.macro.MacroStringTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import hamu.Naming.*;
+import hamu.Builder;
 
 using Lambda;
 
-class AutoParser {
 
-  static function processName(sb:StringBuf, s:String):Void {
-    var i = 0;
-    while (true) {
-      var prev = i;
-      var found = s.indexOf("_", prev);
-      if (found != -1) {
-        sb.addSub(s, prev, found - prev);
-        sb.add("__");
-        i = found + 1;
-      }
-      else {
-        sb.addSub(s, prev);
-        break;
-      }
-    }
-  }
+class AutoParser {
 
   static function generatedMethodName(pack:Array<String>, name:String):String {
     var sb = new StringBuf();
@@ -41,36 +28,21 @@ class AutoParser {
     processName(sb, name);
     return sb.toString();
   }
-
 #if macro
 
-  static function fields(includeModules:Array<String>, parserModule:String, className:String):Array<Field> return {
-    var modulePath = MacroStringTools.toFieldExpr(parserModule.split("."));
+
+  public static function fields(includeModules:Array<String>, buildingModule:String, className:String):Array<Field> return {
+    var modulePath = MacroStringTools.toFieldExpr(buildingModule.split("."));
     var thisClassExpr = macro $modulePath.$className;
     var dataTypesByGeneratedMethodName = new StringMap<BaseType>();
 
 
 // ADT的序列化必须放在最后，因为它们需要类型推断。
-    var elementParseFields:Array<Field> = [];
-    var repeatParseFields:Array<Field> = [];
-    var complexParseFields:Array<Field> = [];
+    var atomFields:Array<Field> = [];
+    var repeatedFields:Array<Field> = [];
+    var complexFields:Array<Field> = [];
 
-    function hasStatic(abstractType:AbstractType, methodName:String):Bool return {
-      switch abstractType {
-        case { impl: null }: false;
-        case { impl: _.get() => { statics: _.get() => statics }}:
-          for (staticMethod in statics) {
-            if (staticMethod.name == methodName) {
-              return true;
-            }
-          }
-          false;
-        default:
-          false;
-      }
-    }
-
-    function tryAddParseMethod(type:Type):Null<String> return {
+    function tryAddMethod(type:Type):Null<String> return {
       switch Context.follow(type) {
         case TInst(_.get() => classType, _) if (classType.constructor != null && classType.constructor.get().isPublic):
           var methodName = generatedMethodName(classType.pack, classType.name);
@@ -81,7 +53,7 @@ class AutoParser {
             for (field in classType.fields.get()) {
               switch (field.kind) {
                 case FVar(AccCall|AccNormal|AccInline, AccCall|AccNormal|AccInline):
-                  var generatedArgMethodName = tryAddParseMethod(field.type);
+                  var generatedArgMethodName = tryAddMethod(field.type);
                   var fieldName = field.name;
                   parseExprs.push(if (field.meta.has(":optional") || field.type.match(TType(_.get() => {name: "Null", module: "StdTypes"}, [_]))) {
                     macro
@@ -124,7 +96,7 @@ class AutoParser {
               params: null
             };
 
-            complexParseFields.push({
+            complexFields.push({
               name: methodName,
               access: [APublic, AStatic],
               kind : FFun({
@@ -187,7 +159,7 @@ class AutoParser {
             }
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
             var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
-            elementParseFields.push({
+            atomFields.push({
               name : methodName,
               access: [APublic, AStatic],
               kind : FFun({
@@ -232,11 +204,11 @@ class AutoParser {
             }
             switch Context.follow(rewriteFromMethod.type) {
               case TFun([ { t:fromType } ], _):
-                var generatedFromMethodName = tryAddParseMethod(fromType);
+                var generatedFromMethodName = tryAddMethod(fromType);
                 if (generatedFromMethodName == null) {
                   return Context.error('${TypeTools.toString(fromType)} is not supported.', rewriteFromMethod.pos);
                 }
-                elementParseFields.push({
+                atomFields.push({
                   name : methodName,
                   access: [APublic, AStatic],
                   kind : FFun({
@@ -289,13 +261,13 @@ class AutoParser {
             }
             switch Context.follow(abstractType.type) {
               case TInst(_.get() => { module: "Array", name: "Array" }, [ elementType ]):
-                var generatedElementMethodName = tryAddParseMethod(elementType);
+                var generatedElementMethodName = tryAddMethod(elementType);
                 if (generatedElementMethodName == null) {
                   return Context.error('${TypeTools.toString(elementType)} is not supported.', abstractType.pos);
                 }
                 var elementComplexType = TypeTools.toComplexType(elementType);
                 var whileCondition = maxRepeat == null ? macro true : macro __repeatedResult.length < $maxRepeat;
-                elementParseFields.push({
+                complexFields.push({
                   name : methodName,
                   access: [APublic, AStatic],
                   kind : FFun({
@@ -346,7 +318,7 @@ class AutoParser {
             var abstractFieldExpr = MacroStringTools.toFieldExpr(abstractPath);
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
             var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
-            elementParseFields.push({
+            atomFields.push({
               name : methodName,
               access: [APublic, AStatic],
               kind : FFun({
@@ -389,7 +361,7 @@ class AutoParser {
                   var argsExprs = [];
                   var argsIdentExprs = [];
                   for (arg in args) {
-                    var generatedArgMethodName = tryAddParseMethod(arg.t);
+                    var generatedArgMethodName = tryAddMethod(arg.t);
                     if (generatedArgMethodName == null) {
                       return Context.error('${TypeTools.toString(arg.t)} is not supported.', constructorPos);
                     }
@@ -416,7 +388,7 @@ class AutoParser {
                     argsIdentExprs.push(macro $i{enumValueName});
                   }
                   argsExprs.push(macro $enumFieldExpr.$constructorName($a{argsIdentExprs}));
-                  complexParseFields.push({
+                  complexFields.push({
                     name: enumValueMethodName,
                     access: [APublic, AStatic],
                     kind : FFun({
@@ -451,7 +423,7 @@ class AutoParser {
             }
             enumBodyExprs.push(macro null);
 
-            complexParseFields.push({
+            complexFields.push({
               name : methodName,
               access: [APublic, AStatic],
               kind : FFun({
@@ -481,50 +453,23 @@ class AutoParser {
 
     for (moduleName in includeModules) {
       for (rootType in Context.getModule(moduleName)) {
-        tryAddParseMethod(rootType);
+        tryAddMethod(rootType);
       }
     }
 
     var fields = [];
-    for (f in elementParseFields) { fields.push(f); }
-    for (f in repeatParseFields) { fields.push(f); }
-    for (f in complexParseFields) { fields.push(f); }
+    for (f in atomFields) { fields.push(f); }
+    for (f in repeatedFields) { fields.push(f); }
+    for (f in complexFields) { fields.push(f); }
 //    var t = macro class BuildingParser {}
 //    t.fields = fields;
 //    trace(new Printer().printTypeDefinition(t));
     fields;
   }
-  @:noUsing
-  public static function defineParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
-    var parserPackage = parserModule.split(".");
-    var moduleName = parserPackage.pop();
-    var parserDefinition = {
-      pack: parserPackage,
-      name: parserName == null ? moduleName : parserName,
-      pos: PositionTools.here(),
-      params: null,
-      meta: null,
-      kind: TDClass(null, [], false),
-      isExtern: false,
-      fields: fields(includeModules, parserModule, parserName == null ? moduleName : parserName)
-    };
-    Context.defineModule(parserModule, [ parserDefinition ]);
-  }
 
-
-  @:noUsing
-  public static function defineMacroParser(includeModules:Array<String>, parserModule:String, ?parserName:String):Void {
-    hamu.ExprEvaluator.evaluateInMacroContext(macro {
-      com.dongxiguo.autoParser.AutoParser.defineParser($v{includeModules}, $v{parserModule}, $v{parserName});
-      null;
-    });
-  }
+  public static var BUILDER(default, never) = new Builder<Array<String>>(AutoParser);
 
 #end
 
-  @:noUsing
-  public macro static function generate(includeModules:Array<String>):Array<Field> return {
-    var localClass = Context.getLocalClass().get();
-    Context.getBuildFields().concat(fields(includeModules, localClass.module, localClass.name));
-  }
 }
+

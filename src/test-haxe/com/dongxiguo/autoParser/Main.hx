@@ -1,6 +1,6 @@
 package com.dongxiguo.autoParser;
 
-import com.dongxiguo.autoParser.UriTemplateLevel1Parser;
+import com.dongxiguo.autoParser.UriTemplateLevel1ParserTest;
 import haxe.ds.Vector;
 
 class Main {

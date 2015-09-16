@@ -1,3 +1,5 @@
+import scala.util.parsing.json.JSONFormat
+
 organization := "com.dongxiguo"
 
 name := "auto-parser"
@@ -8,4 +10,8 @@ for (c <- Seq(Compile, Test)) yield {
   haxeOptions in c += (baseDirectory.value / "build.hxml").getAbsolutePath
 }
 
-haxeOptions in Test ++= Seq("--macro", """com.dongxiguo.autoParser.AutoParser.defineParser([ "com.dongxiguo.autoParser.UriTemplateLevel1" ], "com.dongxiguo.autoParser.MacroParser")""")
+haxeMacros in Test += raw"""
+  com.dongxiguo.autoParser.AutoParser.BUILDER.defineClass(
+    [ "com.dongxiguo.autoParser.UriTemplateLevel1" ],
+    "com.dongxiguo.autoParser.MacroParser")
+"""
