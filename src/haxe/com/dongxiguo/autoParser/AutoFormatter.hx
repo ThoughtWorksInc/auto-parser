@@ -92,7 +92,11 @@ class AutoFormatter {
                   }
                 ],
                 ret: macro : Void,
-                expr: macro return {$a{parseExprs}}
+                expr: macro return {
+                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  __typeInfererForBuffer(__buffer);
+                  {$a{parseExprs}}
+                }
               }),
               pos: PositionTools.here()
             });
@@ -122,6 +126,8 @@ class AutoFormatter {
                 ],
                 ret: macro : Void,
                 expr: macro return {
+                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  __typeInfererForBuffer(__buffer);
                   var __enumValue: $underlyingComplexType = cast __ast;
                   __buffer.append(__enumValue);
                 }
@@ -174,6 +180,8 @@ class AutoFormatter {
                     ],
                     ret: macro : Void,
                     expr: macro {
+                      inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                      __typeInfererForBuffer(__buffer);
                       var __to = $abstractFieldExpr.rewriteTo(cast __ast);
                       if (__to != null) {
                          $thisClassExpr.$generatedToMethodName(__buffer, cast __to);
@@ -233,6 +241,8 @@ class AutoFormatter {
                     ],
                     ret: macro : Void,
                     expr: macro {
+                      inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                      __typeInfererForBuffer(__buffer);
                       var __repeatedResult:Array<$elementComplexType>= cast __ast;
                       for (__element in __repeatedResult) {
                         $thisClassExpr.$generatedElementMethodName(__buffer, __element);
@@ -269,7 +279,12 @@ class AutoFormatter {
                     }
                     var enumValueName = '__enumValue_${arg.name}';
                     argsIdentExprs.push(macro $i{enumValueName});
-                    bodyExprs.push(macro $thisClassExpr.$generatedArgMethodName(__buffer, $i{enumValueName}));
+                    bodyExprs.push(macro if ({
+                      inline function nullable<A>(a:Null<A>):Null<A> return a;
+                      nullable($i{enumValueName}) != null;
+                    }) {
+                      $thisClassExpr.$generatedArgMethodName(__buffer, $i{enumValueName});
+                    });
                   }
                   cases.push({
                     values: [ macro $enumFieldExpr.$constructorName($a{argsIdentExprs}) ],
@@ -300,7 +315,11 @@ class AutoFormatter {
                   }
                 ],
                 ret: macro : Void,
-                expr: macro return $switchExpr
+                expr: macro return {
+                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  __typeInfererForBuffer(__buffer);
+                  $switchExpr;
+                }
               }),
               pos: PositionTools.here()
             });
