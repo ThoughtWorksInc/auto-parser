@@ -10,7 +10,7 @@ class Main {
       var text = "/prefix/123/456/";
       trace('Parsing $text...');
       var source = new StringSource(text);
-      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_Literal(cast source);
+      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_Literal(source);
       trace('$ast\n');
     }
 
@@ -18,7 +18,7 @@ class Main {
       var text = "/prefix/123/456/";
       trace('Parsing $text...');
       var source = new StringSource(text);
-      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_Literals(cast source);
+      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_Literals(source);
       trace('$ast\n');
     }
 
@@ -26,7 +26,7 @@ class Main {
       var text = "/prefix/123/456/";
       trace('Parsing $text...');
       var source = new StringSource(text);
-      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_LiteralOrExpression(cast source);
+      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_LiteralOrExpression(source);
       trace('$ast\n');
     }
 
@@ -34,7 +34,7 @@ class Main {
       var text = "{category}";
       trace('Parsing $text...');
       var source = new StringSource(text);
-      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_LiteralOrExpression(cast source);
+      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_LiteralOrExpression(source);
       trace('$ast\n');
     }
 
@@ -42,7 +42,7 @@ class Main {
       var text = "/prefix/{category}/{userId}";
       trace('Parsing $text...');
       var source = new StringSource(text);
-      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_UriTemplateLevel1(cast source);
+      var ast = UriTemplateLevel1Parser.parse_com_dongxiguo_autoParser_UriTemplateLevel1(source);
       trace('$ast\n');
     }
 

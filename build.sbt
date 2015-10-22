@@ -6,7 +6,9 @@ name := "auto-parser"
 
 libraryDependencies ++= Seq("com.qifun.sbt-haxe" %% "test-interface" % "0.1.1" % Test)
 
-libraryDependencies += "com.thoughtworks.microbuilder" % "hamu" % "0.2.0" % HaxeJava classifier "haxe-java"
+for (c <- AllHaxeConfigurations) yield {
+  libraryDependencies += "com.thoughtworks.microbuilder" % "hamu" % "0.2.0" % c classifier c.name
+}
 
 haxelibDependencies += "hamu" -> DependencyVersion.SpecificVersion("0.2.0")
 
