@@ -39,7 +39,7 @@ developers := List(
 
 haxelibContributors := Seq("Atry")
 
-haxelibReleaseNote := "Initial release"
+haxelibReleaseNote := "Upgrade sbt version in order to release to Maven central."
 
 haxelibTags ++= Seq(
   "cross", "cpp", "cs", "flash", "java", "javascript", "js", "neko", "php", "python", "nme",
