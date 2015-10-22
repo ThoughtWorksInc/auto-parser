@@ -66,13 +66,15 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  releaseStepTask(publish in Haxe),
   publishArtifacts,
+  releaseStepTask(publish in Haxe),
   setNextVersion,
   commitNextVersion,
   releaseStepCommand("sonatypeRelease"),
   pushChanges
 )
+
+releaseUseGlobalVersion := false
 
 scmInfo := Some(ScmInfo(
   url(s"https://github.com/ThoughtWorksInc/${name.value}"),
