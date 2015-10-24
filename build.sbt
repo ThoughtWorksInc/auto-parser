@@ -83,4 +83,4 @@ scmInfo := Some(ScmInfo(
   s"scm:git:git://github.com/ThoughtWorksInc/${name.value}.git",
   Some(s"scm:git:git@github.com:ThoughtWorksInc/${name.value}.git")))
 
-licenses += "MIT" -> url("https://opensource.org/licenses/MIT")
+licenses += "Apache" -> url("http://www.apache.org/licenses/LICENSE-2.0")
