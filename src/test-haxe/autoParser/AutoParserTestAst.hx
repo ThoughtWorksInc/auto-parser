@@ -1,4 +1,4 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
 @:enum
 abstract CharacterA(Int) {

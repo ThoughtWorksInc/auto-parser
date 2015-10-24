@@ -1,6 +1,6 @@
 enablePlugins(AllHaxePlugins)
 
-organization := "com.dongxiguo"
+organization := "com.thoughtworks.microbuilder"
 
 name := "auto-parser"
 
@@ -18,9 +18,9 @@ for (c <- Seq(Compile, Test)) yield {
 
 for (c <- AllTestTargetConfigurations) yield {
   haxeMacros in c += raw"""
-    com.dongxiguo.autoParser.AutoParser.BUILDER.defineClass(
-      [ "com.dongxiguo.autoParser.UriTemplateLevel1" ],
-      "com.dongxiguo.autoParser.MacroParser")
+    autoParser.AutoParser.BUILDER.defineClass(
+      [ "autoParser.UriTemplateLevel1" ],
+      "autoParser.MacroParser")
   """
 }
 

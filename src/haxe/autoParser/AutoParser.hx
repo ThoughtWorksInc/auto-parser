@@ -1,4 +1,4 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
 import haxe.macro.MacroType;
 import haxe.macro.Type.AbstractType;
@@ -110,7 +110,7 @@ class AutoParser {
                 ],
                 ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
                 expr: macro return {
-                inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                 __typeInfererForSource(__source);
                 var __sequence = new $classTypePath();
                 {$a{parseExprs}}
@@ -168,7 +168,7 @@ class AutoParser {
                 [
                   {
                     name : "__source",
-                    type : macro : com.dongxiguo.autoParser.ISource<$underlyingComplexType, Position>
+                    type : macro : autoParser.ISource<$underlyingComplexType, Position>
                   }
                 ],
                 ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
@@ -222,7 +222,7 @@ class AutoParser {
                     ],
                     ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
                     expr: macro {
-                    inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                    inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                     __typeInfererForSource(__source);
                     var __from = $thisClassExpr.$generatedFromMethodName(__source);
                     if (__from == null) {
@@ -281,7 +281,7 @@ class AutoParser {
                     ],
                     ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
                     expr: macro {
-                    inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                    inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                     __typeInfererForSource(__source);
                     var __repeatedResult:Array<$elementComplexType>= [];
                     while ($whileCondition) {
@@ -327,7 +327,7 @@ class AutoParser {
                 [
                   {
                     name : "__source",
-                    type : macro : com.dongxiguo.autoParser.ISource<$underlyingComplexType, Position>
+                    type : macro : autoParser.ISource<$underlyingComplexType, Position>
                   }
                 ],
                 ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
@@ -402,7 +402,7 @@ class AutoParser {
                       ],
                       ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
                       expr: macro return {
-                      inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                      inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                       __typeInfererForSource(__source);
                       {$a{argsExprs}}
                       }
@@ -437,7 +437,7 @@ class AutoParser {
                 ],
                 ret: TypeTools.toComplexType(type), // TODO: 展开泛型参数
                 expr: macro return {
-                inline function __typeInfererForSource<Element>(__source:com.dongxiguo.autoParser.ISource<Element, Position>):Void return;
+                inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                 __typeInfererForSource(__source);
                 {$a{enumBodyExprs}}
                 }

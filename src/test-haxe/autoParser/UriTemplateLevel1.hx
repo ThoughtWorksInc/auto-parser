@@ -1,4 +1,4 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
 @:atom
 abstract Literal(Int) {

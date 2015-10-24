@@ -1,6 +1,6 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
-import com.dongxiguo.autoParser.AutoParserTestAst;
+import autoParser.AutoParserTestAst;
 import haxe.unit.TestCase;
 
 class AutoParserTest extends TestCase {
@@ -9,7 +9,7 @@ class AutoParserTest extends TestCase {
     var text = "B";
     trace('Parsing $text...');
     var source = new StringSource(text);
-    var ast = AutoParserTestAstParser.parse_com_dongxiguo_autoParser_CharacterB(source);
+    var ast = AutoParserTestAstParser.parse_autoParser_CharacterB(source);
     assertEquals(CharacterB.CHARACTER, ast);
     assertEquals(null, source.current);
     assertEquals(text.length, source.position);
@@ -19,7 +19,7 @@ class AutoParserTest extends TestCase {
     var text = "BA";
     trace('Parsing $text...');
     var source = new StringSource(text);
-    var ast = AutoParserTestAstParser.parse_com_dongxiguo_autoParser_AutoParserTestAst(source);
+    var ast = AutoParserTestAstParser.parse_autoParser_AutoParserTestAst(source);
     assertEquals(null, ast);
     assertEquals("A".code, source.current);
     assertEquals(1, source.position);
@@ -29,7 +29,7 @@ class AutoParserTest extends TestCase {
     var text = "B\000A";
     trace('Parsing $text...');
     var source = new StringSource(text);
-    var ast = AutoParserTestAstParser.parse_com_dongxiguo_autoParser_AutoParserTestAst(source);
+    var ast = AutoParserTestAstParser.parse_autoParser_AutoParserTestAst(source);
     assertEquals(CharacterB.CHARACTER, ast.b);
     assertEquals(CharacterZero.CHARACTER, ast.zero);
     assertEquals(CharacterA.CHARACTER, ast.a);
@@ -41,7 +41,7 @@ class AutoParserTest extends TestCase {
     var text = "A";
     trace('Parsing $text...');
     var source = new StringSource(text);
-    var ast = AutoParserTestAstParser.parse_com_dongxiguo_autoParser_OptionalAst(source);
+    var ast = AutoParserTestAstParser.parse_autoParser_OptionalAst(source);
     assertEquals(null, ast.b);
     assertEquals(CharacterA.CHARACTER, ast.a);
     assertEquals(null, source.current);
@@ -53,7 +53,7 @@ class AutoParserTest extends TestCase {
     var text = "BA";
     trace('Parsing $text...');
     var source = new StringSource(text);
-    var ast = AutoParserTestAstParser.parse_com_dongxiguo_autoParser_OptionalAst(source);
+    var ast = AutoParserTestAstParser.parse_autoParser_OptionalAst(source);
     assertEquals(CharacterB.CHARACTER, ast.b);
     assertEquals(CharacterA.CHARACTER, ast.a);
     assertEquals(null, source.current);
@@ -63,15 +63,15 @@ class AutoParserTest extends TestCase {
 }
 
 
-@:build(hamu.ExprEvaluator.evaluate(com.dongxiguo.autoParser.AutoParser.BUILDER.build([
-  "com.dongxiguo.autoParser.AutoParserTestAst"
+@:build(hamu.ExprEvaluator.evaluate(autoParser.AutoParser.BUILDER.build([
+  "autoParser.AutoParserTestAst"
 ])))
 class AutoParserTestAstParser {
 
 }
 
-@:build(hamu.ExprEvaluator.evaluate(com.dongxiguo.autoParser.AutoFormatter.BUILDER.build([
-  "com.dongxiguo.autoParser.AutoParserTestAst"
+@:build(hamu.ExprEvaluator.evaluate(autoParser.AutoFormatter.BUILDER.build([
+  "autoParser.AutoParserTestAst"
 ])))
 class AutoParserTestAstFormatter {
 

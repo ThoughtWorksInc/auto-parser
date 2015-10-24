@@ -1,4 +1,4 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
 class StringBuffer implements IBuffer<Int> {
 

@@ -1,4 +1,4 @@
-package com.dongxiguo.autoParser;
+package autoParser;
 
 import haxe.macro.MacroType;
 import haxe.macro.Type.AbstractType;
@@ -93,7 +93,7 @@ class AutoFormatter {
                 ],
                 ret: macro : Void,
                 expr: macro return {
-                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                   __typeInfererForBuffer(__buffer);
                   {$a{parseExprs}}
                 }
@@ -126,7 +126,7 @@ class AutoFormatter {
                 ],
                 ret: macro : Void,
                 expr: macro return {
-                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                   __typeInfererForBuffer(__buffer);
                   var __enumValue: $underlyingComplexType = cast __ast;
                   __buffer.append(__enumValue);
@@ -180,7 +180,7 @@ class AutoFormatter {
                     ],
                     ret: macro : Void,
                     expr: macro {
-                      inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                      inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                       __typeInfererForBuffer(__buffer);
                       var __to = $abstractFieldExpr.rewriteTo(cast __ast);
                       if (__to != null) {
@@ -241,7 +241,7 @@ class AutoFormatter {
                     ],
                     ret: macro : Void,
                     expr: macro {
-                      inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                      inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                       __typeInfererForBuffer(__buffer);
                       var __repeatedResult:Array<$elementComplexType>= cast __ast;
                       for (__element in __repeatedResult) {
@@ -316,7 +316,7 @@ class AutoFormatter {
                 ],
                 ret: macro : Void,
                 expr: macro return {
-                  inline function __typeInfererForBuffer<Element>(__buffer:com.dongxiguo.autoParser.IBuffer<Element>):Void return;
+                  inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                   __typeInfererForBuffer(__buffer);
                   $switchExpr;
                 }
