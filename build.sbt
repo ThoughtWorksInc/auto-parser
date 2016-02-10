@@ -7,10 +7,10 @@ name := "auto-parser"
 libraryDependencies ++= Seq("com.qifun.sbt-haxe" %% "test-interface" % "0.1.1" % Test)
 
 for (c <- AllHaxeConfigurations) yield {
-  libraryDependencies += "com.thoughtworks.microbuilder" % "hamu" % "0.2.1" % c classifier c.name
+  libraryDependencies += "com.thoughtworks.microbuilder" % "hamu" % "1.0.0" % c classifier c.name
 }
 
-haxelibDependencies += "hamu" -> DependencyVersion.SpecificVersion("0.2.1")
+haxelibDependencies += "hamu" -> DependencyVersion.SpecificVersion("1.0.0")
 
 for (c <- Seq(Compile, Test)) yield {
   haxeOptions in c += (baseDirectory.value / "build.hxml").getAbsolutePath
@@ -18,7 +18,7 @@ for (c <- Seq(Compile, Test)) yield {
 
 for (c <- AllTestTargetConfigurations) yield {
   haxeMacros in c += raw"""
-    autoParser.AutoParser.BUILDER.defineClass(
+    autoParser.AutoParser.BUILDER.lazyDefineClass(
       [ "autoParser.UriTemplateLevel1" ],
       "autoParser.MacroParser")
   """
@@ -41,7 +41,12 @@ developers := List(
 
 haxelibContributors := Seq("Atry")
 
-haxelibReleaseNote := "Upgrade sbt version in order to release to Maven central."
+haxelibReleaseNote := xml.Xhtml.toXhtml(
+  <ul>
+    <li>Fix compilation error for C++ target</li>
+    <li>Upgrade dependency versions</li>
+  </ul>
+)
 
 haxelibTags ++= Seq(
   "cross", "cpp", "cs", "flash", "java", "javascript", "js", "neko", "php", "python", "nme",
