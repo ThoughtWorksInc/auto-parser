@@ -1,7 +1,9 @@
 package autoParser;
 
-@:final
+#if (!cpp)
 @:nativeGen
+#end
+@:final
 class StringSource implements ISource<Int, Int> {
   var data:String;
   var index:Int;

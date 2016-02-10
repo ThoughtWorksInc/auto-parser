@@ -1,6 +1,8 @@
 package autoParser;
 
+#if (!cpp)
 @:nativeGen
+#end
 interface ISource<Element, Position> {
 
   var current(get, never):Null<Element>;
