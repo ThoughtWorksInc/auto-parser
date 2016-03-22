@@ -102,6 +102,42 @@ class AutoFormatter {
             });
           }
           methodName;
+        case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":enum") && abstractType.meta.has(":sequence")):
+          var methodName = generatedMethodName(abstractType.pack, abstractType.name);
+          if (dataTypesByGeneratedMethodName.get(methodName) == null) {
+            dataTypesByGeneratedMethodName.set(methodName, abstractType);
+            var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
+            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
+            atomFields.push({
+              name : methodName,
+              access: [APublic, AStatic],
+              kind : FFun({
+                params: [],
+                args :
+                [
+                  {
+                    name : "__buffer",
+                    type : null
+                  },
+                  {
+                    name: "__ast",
+                    type: TypeTools.toComplexType(type) // TODO: 展开泛型参数
+                  }
+                ],
+                ret: macro : Void,
+                expr: macro {
+                  inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
+                  __typeInfererForBuffer(__buffer);
+                  var __enumValue: $underlyingComplexType = cast __ast;
+                  for (__char in __enumValue) {
+                    __buffer.append(__char);
+                  }
+                }
+              }),
+              pos: PositionTools.here()
+            });
+          }
+          methodName;
         case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":enum") || abstractType.meta.has(":atom")):
           var methodName = generatedMethodName(abstractType.pack, abstractType.name);
           if (dataTypesByGeneratedMethodName.get(methodName) == null) {

@@ -39,7 +39,7 @@ class AutoParser {
 
 // ADT的序列化必须放在最后，因为它们需要类型推断。
     var atomFields:Array<Field> = [];
-    var repeatedFields:Array<Field> = [];
+//    var repeatedFields:Array<Field> = [];
     var complexFields:Array<Field> = [];
 
     function tryAddMethod(type:Type):Null<String> return {
@@ -119,6 +119,73 @@ class AutoParser {
               }),
               pos: PositionTools.here()
             });
+          }
+          methodName;
+        case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":enum") && abstractType.meta.has(":sequence")):
+          var methodName = generatedMethodName(abstractType.pack, abstractType.name);
+          if (dataTypesByGeneratedMethodName.get(methodName) == null) {
+            dataTypesByGeneratedMethodName.set(methodName, abstractType);
+            var abstractPath = abstractType.module.split(".");
+            abstractPath.push(abstractType.name);
+            var abstractFieldExpr = MacroStringTools.toFieldExpr(abstractPath);
+            var staticFieldExprs = [];
+            if (abstractType.impl != null) {
+              for (field in abstractType.impl.get().statics.get()) {
+                switch field.kind {
+                  case FVar(VarAccess.AccInline, VarAccess.AccNever) if (Context.unify(field.type, type)):
+                    var fieldName = field.name;
+                    staticFieldExprs.push(macro $abstractFieldExpr.$fieldName);
+                  default:
+                    continue;
+                }
+              }
+            }
+            function tryNext(i:Int) return {
+              if (i == staticFieldExprs.length) {
+                var next = tryNext(i + 1);
+                var staticFieldExpr = staticFieldExprs[i];
+                macro {
+                  for (__char in $staticFieldExpr) {
+                    if (!(__source.hasNext() && __source.next() == __char)) {
+                      __source.current = __current;
+                      $next;
+                    }
+                  }
+                  __source.next();
+                  return $staticFieldExpr;
+                }
+              } else {
+                macro return null;
+              }
+            }
+
+            var tryAll = tryNext(0);
+
+            var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
+            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
+            complexFields.push({
+              name : methodName,
+              access: [APublic, AStatic],
+              kind : FFun({
+                params: [ { name: "Position" } ],
+                args :
+                [
+                  {
+                    name : "__source",
+                    type : null
+                  }
+                ],
+                ret: macro : Null<$abstractComplexType>, // TODO: 展开泛型参数
+                expr: macro {
+                  inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
+                  __typeInfererForSource(__source);
+                  var __current = __source.current;
+                  $tryAll;
+                }
+              }),
+              pos: PositionTools.here()
+            });
+
           }
           methodName;
         case TAbstract(_.get() => abstractType, _) if (abstractType.meta.has(":enum")):
@@ -459,7 +526,7 @@ class AutoParser {
 
     var fields = [];
     for (f in atomFields) { fields.push(f); }
-    for (f in repeatedFields) { fields.push(f); }
+//    for (f in repeatedFields) { fields.push(f); }
     for (f in complexFields) { fields.push(f); }
 //    var t = macro class BuildingParser {}
 //    t.fields = fields;

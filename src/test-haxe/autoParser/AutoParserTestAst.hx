@@ -1,6 +1,13 @@
 package autoParser;
 
 @:enum
+@:sequence
+abstract KeyWord(String) {
+  var AND = "AND";
+  var OR = "OR";
+}
+
+@:enum
 abstract CharacterA(Int) {
   var CHARACTER = "A".code;
 }
@@ -34,6 +41,9 @@ class OptionalAst {
   public function new() {}
 
   public var b:Null<CharacterB>;
+
+  public var keyWord:Null<KeyWord>;
+
   public var a(get, set):CharacterA;
 
   public function get_a():CharacterA {

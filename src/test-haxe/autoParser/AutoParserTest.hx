@@ -3,6 +3,7 @@ package autoParser;
 import autoParser.AutoParserTestAst;
 import haxe.unit.TestCase;
 
+using autoParser.util.StringIterator;
 class AutoParserTest extends TestCase {
 
   public function testCharacter():Void {
