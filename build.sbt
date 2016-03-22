@@ -6,7 +6,7 @@ name := "auto-parser"
 
 resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public"
 
-libraryDependencies ++= Seq("com.qifun.sbt-haxe" %% "test-interface" % "0.1.1" % Test)
+libraryDependencies += "com.qifun.sbt-haxe" %% "test-interface" % "0.1.1" % Test
 
 for (c <- AllHaxeConfigurations) yield {
   libraryDependencies += "com.thoughtworks.microbuilder" % "hamu" % "1.0.0" % c classifier c.name
