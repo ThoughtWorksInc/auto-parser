@@ -42,7 +42,7 @@ class UriTemplateLevel1ParserTest extends TestCase {
     trace('Parsing $text...');
     var source = new StringSource(text);
     var ast = UriTemplateLevel1Parser.parse_autoParser_LiteralOrExpression(source);
-    assertEquals("Variable([99,97,116,101,103,111,114,121])", Std.string(ast));
+    assertEquals("VARIABLE([99,97,116,101,103,111,114,121])", Std.string(ast));
     var buffer = new StringBuffer();
     UriTemplateLevel1Formatter.format_autoParser_LiteralOrExpression(buffer, ast);
     assertEquals(text, buffer.toString());
@@ -53,7 +53,7 @@ class UriTemplateLevel1ParserTest extends TestCase {
     trace('Parsing $text...');
     var source = new StringSource(text);
     var ast = UriTemplateLevel1Parser.parse_autoParser_UriTemplateLevel1(source);
-    assertEquals("[LITERALS([47,112,114,101,102,105,120,47]),Variable([99,97,116,101,103,111,114,121]),LITERALS([47]),Variable([117,115,101,114,73,100])]", Std.string(ast));
+    assertEquals("[LITERALS([47,112,114,101,102,105,120,47]),VARIABLE([99,97,116,101,103,111,114,121]),LITERALS([47]),VARIABLE([117,115,101,114,73,100])]", Std.string(ast));
     var buffer = new StringBuffer();
     UriTemplateLevel1Formatter.format_autoParser_UriTemplateLevel1(buffer, ast);
     assertEquals(text, buffer.toString());
@@ -64,7 +64,7 @@ class UriTemplateLevel1ParserTest extends TestCase {
     trace('Parsing $text...');
     var source = new StringSource(text);
     var ast = MacroParser.parse_autoParser_UriTemplateLevel1(source);
-    assertEquals("[LITERALS([47,112,114,101,102,105,120,47]),Variable([99,97,116,101,103,111,114,121]),LITERALS([47]),Variable([117,115,101,114,73,100])]", Std.string(ast));
+    assertEquals("[LITERALS([47,112,114,101,102,105,120,47]),VARIABLE([99,97,116,101,103,111,114,121]),LITERALS([47]),VARIABLE([117,115,101,114,73,100])]", Std.string(ast));
   }
 
 }

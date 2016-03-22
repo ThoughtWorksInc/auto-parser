@@ -44,7 +44,7 @@ enum Expression {
 
 enum LiteralOrExpression {
   LITERALS(literals:Literals);
-  Variable(variable:Variable);
+  VARIABLE(variable:Variable);
 }
 
 @:repeat(1)
