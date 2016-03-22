@@ -57,6 +57,8 @@ env:
 
 before_deploy:
   - travis_retry git clone --depth=1 $secret_git ./secret
+  - travis_retry haxelib install hxcs --always
+  - travis_retry haxelib install hxcpp --always
 
 deploy:
   provider: script
