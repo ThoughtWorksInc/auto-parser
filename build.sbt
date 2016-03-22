@@ -45,8 +45,8 @@ haxelibContributors := Seq("Atry")
 
 haxelibReleaseNote := xml.Xhtml.toXhtml(
   <ul>
-    <li>Fix compilation error for C++ target</li>
-    <li>Upgrade dependency versions</li>
+    <li>Add <code>StringIterator</code></li>
+    <li>Support <code>@:sequence</code></li>
   </ul>
 )
 
