@@ -140,18 +140,22 @@ class AutoParser {
                 }
               }
             }
+
+            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
+
             function tryNext(i:Int) return {
-              if (i == staticFieldExprs.length) {
+              if (i < staticFieldExprs.length) {
                 var next = tryNext(i + 1);
                 var staticFieldExpr = staticFieldExprs[i];
                 macro {
-                  for (__char in $staticFieldExpr) {
-                    if (!(__source.hasNext() && __source.next() == __char)) {
-                      __source.current = __current;
+                  var __sequence: $underlyingComplexType = cast $staticFieldExpr;
+                  for (__char in __sequence) {
+                    if (__source.current != __char) {
+                      __source.position = __savedPosition;
                       $next;
                     }
+                    __source.next();
                   }
-                  __source.next();
                   return $staticFieldExpr;
                 }
               } else {
@@ -162,7 +166,6 @@ class AutoParser {
             var tryAll = tryNext(0);
 
             var abstractComplexType = TypeTools.toComplexType(type);// TODO: 展开泛型参数
-            var underlyingComplexType = TypeTools.toComplexType(abstractType.type);
             complexFields.push({
               name : methodName,
               access: [APublic, AStatic],
@@ -179,7 +182,7 @@ class AutoParser {
                 expr: macro {
                   inline function __typeInfererForSource<Element>(__source:autoParser.ISource<Element, Position>):Void return;
                   __typeInfererForSource(__source);
-                  var __current = __source.current;
+                  var __savedPosition = __source.position;
                   $tryAll;
                 }
               }),

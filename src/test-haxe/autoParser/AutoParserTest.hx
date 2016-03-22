@@ -61,6 +61,22 @@ class AutoParserTest extends TestCase {
     assertEquals(text.length, source.position);
   }
 
+  public function testOptionalSequence():Void {
+    var text = "BANDA";
+    trace('Parsing $text...');
+    var source = new StringSource(text);
+    var ast = AutoParserTestAstParser.parse_autoParser_OptionalAst(source);
+    assertEquals(CharacterB.CHARACTER, ast.b);
+    assertEquals(CharacterA.CHARACTER, ast.a);
+    assertEquals(null, source.current);
+    assertEquals(text.length, source.position);
+    assertEquals(KeyWord.AND, ast.keyWord);
+
+    var buffer = new StringBuffer();
+    AutoParserTestAstFormatter.format_autoParser_OptionalAst(buffer, ast);
+    assertEquals(text, buffer.toString());
+  }
+
 }
 
 
