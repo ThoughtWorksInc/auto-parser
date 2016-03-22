@@ -130,7 +130,7 @@ class AutoFormatter {
                   __typeInfererForBuffer(__buffer);
                   var __enumValue: $underlyingComplexType = cast __ast;
                   for (__char in __enumValue) {
-                    __buffer.append(__char);
+                    __buffer.append(cast /* Workaround for C# */ __char);
                   }
                 }
               }),
@@ -164,7 +164,7 @@ class AutoFormatter {
                 expr: macro return {
                   inline function __typeInfererForBuffer<Element>(__buffer:autoParser.IBuffer<Element>):Void return;
                   __typeInfererForBuffer(__buffer);
-                  var __enumValue: $underlyingComplexType = cast __ast;
+                  var __enumValue: $underlyingComplexType = cast /* Workaround for C# */ __ast;
                   __buffer.append(__enumValue);
                 }
               }),

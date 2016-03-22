@@ -41,6 +41,7 @@ class AutoParser {
     var atomFields:Array<Field> = [];
 //    var repeatedFields:Array<Field> = [];
     var complexFields:Array<Field> = [];
+    var sequenceFields:Array<Field> = [];
 
     function tryAddMethod(type:Type):Null<String> return {
       switch Context.follow(type) {
@@ -150,7 +151,7 @@ class AutoParser {
                 macro {
                   var __sequence: $underlyingComplexType = cast $staticFieldExpr;
                   for (__char in __sequence) {
-                    if (__source.current != __char) {
+                    if (__source.current != cast __char) {
                       __source.position = __savedPosition;
                       $next;
                     }
@@ -528,6 +529,7 @@ class AutoParser {
     }
 
     var fields = [];
+    for (f in sequenceFields) { fields.push(f); }
     for (f in atomFields) { fields.push(f); }
 //    for (f in repeatedFields) { fields.push(f); }
     for (f in complexFields) { fields.push(f); }
